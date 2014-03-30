@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.DefaultListModel;
+
 import models.File;
 import models.User;
 
@@ -10,8 +12,8 @@ public class DataStore {
 	
     private static DataStore _instance;
     
-    private List<File> fileList;
-    private List<User> userList;
+    private DefaultListModel<File> fileListModel;
+    private DefaultListModel<User> userListModel;
     
     
     public static void init() {
@@ -29,23 +31,23 @@ public class DataStore {
     
     public void addToFileList(File file){
     	
-    	if(fileList == null){
-    		fileList = new ArrayList<File>();
+    	if(fileListModel == null){
+    		fileListModel = new DefaultListModel<File>();
     	}
     	
-    	fileList.add(file);
+    	fileListModel.addElement(file);
     	//TODO: notify the mediator    	
     }
     
     //removes if it exists
     public boolean removeFromFileList(File file){
     	
-    	if(fileList == null){
+    	if(fileListModel == null){
     		return false;
     	}
     	
-    	if(fileList.contains(file)){
-    		fileList.remove(file);
+    	if(fileListModel.contains(file)){
+    		fileListModel.removeElement(file);
     		//TODO: notify the mediator 
     		return true;
     		
@@ -58,13 +60,12 @@ public class DataStore {
     //removes if it exists
     public boolean removeFromFileList(Integer index){
     	
-    	if(fileList == null){
+    	if(fileListModel == null){
     		return false;
     	}
     	
-    	if(fileList.size()<=index+1){
-    		fileList.remove(index);
-    		//TODO: notify mediator 
+    	if(fileListModel.size()<=index+1){
+    		fileListModel.remove(index);
     		return true;
     	}else{
     		return false;
@@ -72,16 +73,16 @@ public class DataStore {
     	
     }
     
-    public File getFile(Integer index){
-    	return fileList.get(index);
+    public File getFileAt(Integer index){
+    	return fileListModel.get(index);
     }
     
-    public List<File> getFileList(){
-    	if(fileList == null){
-    		fileList = new ArrayList<File>();
+    public DefaultListModel<File> getFileListModel(){
+    	if(fileListModel == null){
+    		fileListModel = new DefaultListModel<File>();
     	}
     	
-    	return fileList;
+    	return fileListModel;
     }
     
     
@@ -89,23 +90,22 @@ public class DataStore {
     
 	public void addToUserList(User user){
     	
-    	if(userList == null){
-    		userList = new ArrayList<User>();
+    	if(userListModel == null){
+    		userListModel = new DefaultListModel<User>();
     	}
     	
-    	userList.add(user);
-    	//TODO: notify the mediator    	
+    	userListModel.addElement(user);  	
     }
 	
 	
     public boolean removeFromUserList(User user){
     	
-    	if(userList == null){
+    	if(userListModel == null){
     		return false;
     	}
     	
-    	if(userList.contains(user)){
-    		userList.remove(user);
+    	if(userListModel.contains(user)){
+    		userListModel.removeElement(user);
     		//TODO: notify the mediator 
     		return true;
     		
@@ -119,13 +119,12 @@ public class DataStore {
     //removes if it exists
     public boolean removeFromUserList(Integer index){
     	
-    	if(userList == null){
+    	if(userListModel == null){
     		return false;
     	}
     	
-    	if(userList.size()<=index+1){
-    		userList.remove(index);
-    		//TODO: notify the mediator 
+    	if(userListModel.size()<=index+1){
+    		userListModel.remove(index);
     		return true;
     	}else{
     		return false;
@@ -133,21 +132,21 @@ public class DataStore {
     	
     }
     
-    public User getUser(Integer index){
+    public User getUserAt(Integer index){
     	
-    	if(index<userList.size()){    	
-    		return userList.get(index);
+    	if(index<userListModel.size()){    	
+    		return userListModel.get(index);
     	}
     	
     	return null;
     }
     
-    public List<User> getUserList(){
-    	if(userList == null){
-    		userList = new ArrayList<User>();
+    public DefaultListModel<User> getUserListModel(){
+    	if(userListModel == null){
+    		userListModel = new DefaultListModel<User>();
     	}
     	
-    	return userList;
+    	return userListModel;
     }
     
 }

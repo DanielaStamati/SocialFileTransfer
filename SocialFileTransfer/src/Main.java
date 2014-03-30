@@ -1,5 +1,8 @@
 import javax.swing.*;
+import javax.swing.table.TableModel;
+
 import java.awt.*;
+
 import models.File;
 import models.User;
 
@@ -14,10 +17,11 @@ public class Main extends JFrame{
 
     private JSplitPane splitPanelUpDown;
     private JSplitPane splitPanelRightLeft;
-
-    private DefaultListModel listModel;
+    
     private JList usersList;
     private JList usersFilesList;
+    
+    TableModel tableModel;
     
     //TODO: set current user!
     
@@ -31,12 +35,7 @@ public class Main extends JFrame{
 
     public void createTable () {
 
-        String[] columnNames = {"Source", "Destination", "File name", "Progres" ,"Status"};
-
-        Object[][] rowData = {{"_me_", "KPO", "file1", "100%", "Completed"},
-                                {"_me_", "KPO", "file2", "100%", "Completed"},
-                                {"_me_", "KPO", "file3", "100%", "Completed"}};
-        table = new JTable(rowData, columnNames);
+        table = new JTable(new CustomTableModel());
     }
 
 
@@ -48,7 +47,6 @@ public class Main extends JFrame{
         
         dataStore.init();
         dataStore = DataStore.getInstance();
-
 
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BorderLayout());
@@ -79,12 +77,12 @@ public class Main extends JFrame{
 
         upPanel = new JPanel();
         upPanel.setLayout(new BorderLayout());
-        
-        dataStore.addToFileList(new File("file1", dataStore.getUser(0), dataStore.getUser(1)));
-        dataStore.addToFileList(new File("file2", dataStore.getUser(1), dataStore.getUser(0)));
-        dataStore.addToFileList(new File("file3", dataStore.getUser(0), dataStore.getUser(2)));
-        
-        usersFilesList = new JList(dataStore.getFileList().toArray());
+       
+        dataStore.addToFileList(new File("file1", dataStore.getUserAt(0), dataStore.getUserAt(1)));
+        dataStore.addToFileList(new File("file2", dataStore.getUserAt(1), dataStore.getUserAt(0)));
+        dataStore.addToFileList(new File("file3", dataStore.getUserAt(0), dataStore.getUserAt(2)));
+       
+        usersFilesList = new JList(dataStore.getFileListModel());
         upPanel.add(usersFilesList);
 
     }
@@ -101,16 +99,22 @@ public class Main extends JFrame{
     }
 
     public void createRightPanel () {
-
+    	
         rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout());
         
-        dataStore.addToUserList(new User("User1"));
-        dataStore.addToUserList(new User("User2"));
-        dataStore.addToUserList(new User("User3"));
+        usersList = new JList(dataStore.getUserListModel());
         
-        usersList = new JList(dataStore.getUserList().toArray());
+        //TODO: delete this:
+        addUsers();
+        
         rightPanel.add(usersList);
+    }
+    
+    private void addUsers(){        
+    	dataStore.addToUserList(new User("User1"));
+    	dataStore.addToUserList(new User("User2"));
+    	dataStore.addToUserList(new User("User3"));
     }
 
 

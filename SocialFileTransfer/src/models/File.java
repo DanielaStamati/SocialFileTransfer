@@ -2,10 +2,10 @@ package models;
 
 
 public class File {
-    private String name;
-    private User from;
-    private User to;
-    private String status;
+    public String name;
+    public User from;
+    public User to;
+    public String status;
     
     
     public File(){}
