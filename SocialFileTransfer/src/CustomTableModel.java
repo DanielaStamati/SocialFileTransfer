@@ -57,7 +57,7 @@ public class CustomTableModel extends AbstractTableModel{
 	        case 2:
 	        	return file.name;
 	        case 3:
-	        	return "100%";
+	        	return file.progress;
 	        case 4:
 	        	return file.status;
 	    }
@@ -65,5 +65,23 @@ public class CustomTableModel extends AbstractTableModel{
 		
 		return null;
 	}
+	
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+		File file = dataStore.getFileAt(rowIndex);
+        if (columnIndex == 3 && (aValue instanceof Float)) {
+        	file.progress = (float) aValue;
+        }
+    }
+    
+    protected void updateStatus(File file, float progress) {
+        
+        if (file != null) {
+            int row = dataStore.getFileListModel().indexOf(file);
+            float p = progress / 100f;
+            setValueAt(p, row, 3);
+            fireTableCellUpdated(row, 3);
+        }
+    }
 
 }

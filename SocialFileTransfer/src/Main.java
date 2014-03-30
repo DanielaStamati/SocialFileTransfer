@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
 import java.awt.*;
@@ -21,7 +23,7 @@ public class Main extends JFrame{
     private JList usersList;
     private JList usersFilesList;
     
-    TableModel tableModel;
+    CustomTableModel tableModel;
     
     //TODO: set current user!
     
@@ -35,7 +37,16 @@ public class Main extends JFrame{
 
     public void createTable () {
 
-        table = new JTable(new CustomTableModel());
+    	tableModel = new CustomTableModel(); 
+    	table = new JTable(tableModel);
+        
+    	tableModel.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
     }
 
 
