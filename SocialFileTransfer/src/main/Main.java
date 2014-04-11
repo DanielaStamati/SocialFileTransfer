@@ -1,16 +1,20 @@
+package main;
 import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
+import javax.swing.text.TabExpander;
+
+import workers.FileUpdater;
 
 import java.awt.*;
 
+import models.CustomTableModel;
 import models.File;
+import models.ProgressCellRender;
 import models.User;
 
-/**
- * Created by chelcioi on 3/17/14.
- */
+
 public class Main extends JFrame{
 
     private JPanel upPanel;
@@ -36,17 +40,9 @@ public class Main extends JFrame{
     }
 
     public void createTable () {
-
     	tableModel = new CustomTableModel(); 
     	table = new JTable(tableModel);
-        
-    	tableModel.addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+    	addFiles();
     }
 
 
@@ -77,10 +73,31 @@ public class Main extends JFrame{
         splitPanelRightLeft.setRightComponent(rightPanel);
         splitPanelRightLeft.setLeftComponent(splitPanelUpDown);
 
-        topPanel.add(splitPanelRightLeft, BorderLayout.CENTER);
-
-
+        topPanel.add(splitPanelRightLeft, BorderLayout.CENTER);     
         setVisible(true);
+        
+
+    }
+    
+    
+    //TODO: delete
+    private void addFiles(){
+    	
+    	File f = new File("file1", dataStore.getUserAt(0), dataStore.getUserAt(1));
+    	dataStore.addToFileList(f);    	
+        FileUpdater worker = new FileUpdater(tableModel,f);
+        worker.execute();
+    	
+    	File f1 = new File("file2", dataStore.getUserAt(1), dataStore.getUserAt(0));
+        dataStore.addToFileList(f1);
+        FileUpdater worker1 = new FileUpdater(tableModel,f1);
+        worker1.execute();
+        
+        File f2 = new File("file3", dataStore.getUserAt(0), dataStore.getUserAt(2));
+        dataStore.addToFileList(f2);
+        FileUpdater worker2 = new FileUpdater(tableModel,f2);
+        worker2.execute();
+
     }
 
 
@@ -88,11 +105,7 @@ public class Main extends JFrame{
 
         upPanel = new JPanel();
         upPanel.setLayout(new BorderLayout());
-       
-        dataStore.addToFileList(new File("file1", dataStore.getUserAt(0), dataStore.getUserAt(1)));
-        dataStore.addToFileList(new File("file2", dataStore.getUserAt(1), dataStore.getUserAt(0)));
-        dataStore.addToFileList(new File("file3", dataStore.getUserAt(0), dataStore.getUserAt(2)));
-       
+        
         usersFilesList = new JList(dataStore.getFileListModel());
         upPanel.add(usersFilesList);
 
@@ -103,6 +116,9 @@ public class Main extends JFrame{
         downPanel = new JPanel();
         downPanel.setLayout(new BorderLayout());
         createTable();
+        
+        table.getColumn("Progress").setCellRenderer(new ProgressCellRender());
+        
         JScrollPane scrollPane = new JScrollPane(table);
         downPanel.add(scrollPane, BorderLayout.CENTER);
 

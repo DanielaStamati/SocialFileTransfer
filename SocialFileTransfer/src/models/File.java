@@ -15,7 +15,8 @@ public class File {
     	this.name = name;
     	this.from = from;
     	this.to = to;
-    	this.status = "Sending...";
+    	//TODO update
+    	this.status = StringConstants.sending;
     	this.progress = 0.f;
     }
     

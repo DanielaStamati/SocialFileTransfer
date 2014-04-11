@@ -1,6 +1,9 @@
+package models;
+
 import javax.swing.table.AbstractTableModel;
 
-import models.File;
+import main.DataStore;
+
 
 
 public class CustomTableModel extends AbstractTableModel{
@@ -35,7 +38,7 @@ public class CustomTableModel extends AbstractTableModel{
                 name = "File name";
                 break;
             case 3:
-                name = "Progres";
+                name = "Progress";
                 break;
             case 4:
                 name = "Status";
@@ -66,6 +69,8 @@ public class CustomTableModel extends AbstractTableModel{
 		return null;
 	}
 	
+	
+	//it takes the data directly from the DataStore
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		File file = dataStore.getFileAt(rowIndex);
@@ -74,14 +79,24 @@ public class CustomTableModel extends AbstractTableModel{
         }
     }
     
-    protected void updateStatus(File file, float progress) {
-        
-        if (file != null) {
+    public void updateStatus(File file, float progress) {       
+    	//TODO: make this shit work properly 
+       if (file != null) {
             int row = dataStore.getFileListModel().indexOf(file);
-            float p = progress / 100f;
-            setValueAt(p, row, 3);
-            fireTableCellUpdated(row, 3);
-        }
+            setValueAt((float)progress, row, 3);
+            fireTableCellUpdated(row, 3); 
+            
+            if(progress==100){
+            	
+            	if(file.status.equalsIgnoreCase(StringConstants.sending)){
+            		file.status = StringConstants.sent;
+            	}else if(file.status.equalsIgnoreCase(StringConstants.receiving)){
+            		file.status = StringConstants.received;
+            	}
+            	
+            	fireTableCellUpdated(row, 4); 
+            }
+       }
     }
 
 }
