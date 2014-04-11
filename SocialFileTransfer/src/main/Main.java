@@ -1,5 +1,6 @@
 package main;
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
@@ -11,7 +12,7 @@ import java.awt.*;
 
 import models.CustomTableModel;
 import models.File;
-import models.ProgressCellRender;
+import models.ProgressCellRenderer;
 import models.User;
 
 
@@ -20,6 +21,7 @@ public class Main extends JFrame{
     private JPanel upPanel;
     private JPanel downPanel;
     private JPanel rightPanel;
+    JPanel statusPanel;
 
     private JSplitPane splitPanelUpDown;
     private JSplitPane splitPanelRightLeft;
@@ -30,6 +32,7 @@ public class Main extends JFrame{
     CustomTableModel tableModel;
     
     //TODO: set current user!
+    User currentUser;
     
     private DataStore dataStore;
 
@@ -73,7 +76,8 @@ public class Main extends JFrame{
         splitPanelRightLeft.setRightComponent(rightPanel);
         splitPanelRightLeft.setLeftComponent(splitPanelUpDown);
 
-        topPanel.add(splitPanelRightLeft, BorderLayout.CENTER);     
+        topPanel.add(splitPanelRightLeft, BorderLayout.CENTER);   
+        createStatusBar();
         setVisible(true);
         
 
@@ -101,7 +105,7 @@ public class Main extends JFrame{
     }
 
 
-    public void createUpPanel () {
+    private void createUpPanel () {
 
         upPanel = new JPanel();
         upPanel.setLayout(new BorderLayout());
@@ -111,13 +115,13 @@ public class Main extends JFrame{
 
     }
 
-    public void createDownPanel (){
+    private void createDownPanel (){
 
         downPanel = new JPanel();
         downPanel.setLayout(new BorderLayout());
         createTable();
         
-        table.getColumn("Progress").setCellRenderer(new ProgressCellRender());
+        table.getColumn("Progress").setCellRenderer(new ProgressCellRenderer());
         
         JScrollPane scrollPane = new JScrollPane(table);
         downPanel.add(scrollPane, BorderLayout.CENTER);
@@ -125,7 +129,7 @@ public class Main extends JFrame{
 
     }
 
-    public void createRightPanel () {
+    private void createRightPanel () {
     	
         rightPanel = new JPanel();
         rightPanel.setLayout(new BorderLayout());
@@ -138,8 +142,32 @@ public class Main extends JFrame{
         rightPanel.add(usersList);
     }
     
-    private void addUsers(){        
-    	dataStore.addToUserList(new User("User1"));
+    public void updateStatusBarLabel(String status){
+    	
+    	JLabel statusLabel = new JLabel(status);
+    	statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+    	statusPanel.add(statusLabel);
+    	
+    }
+    
+    private void createStatusBar(){
+    	
+    	statusPanel = new JPanel();
+    	statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+    	this.add(statusPanel, BorderLayout.SOUTH);
+    	
+    	updateStatusBarLabel("status bar created");
+    	
+    	statusPanel.setPreferredSize(new Dimension(this.getWidth(), 16));
+    	statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
+    	
+    	statusPanel.setVisible(true);
+    	this.setVisible(true);
+    }
+    
+    private void addUsers(){
+    	currentUser = new User("User1");
+    	dataStore.addToUserList(currentUser);
     	dataStore.addToUserList(new User("User2"));
     	dataStore.addToUserList(new User("User3"));
     }

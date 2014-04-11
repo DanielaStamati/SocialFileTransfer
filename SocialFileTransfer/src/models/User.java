@@ -15,4 +15,8 @@ public class User {
     public String toString() {
         return name;
     }
+    
+    public boolean equals(User u) {    	
+    	return u.toString().equalsIgnoreCase(name);   	
+    }
 }
