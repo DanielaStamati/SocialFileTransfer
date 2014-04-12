@@ -13,7 +13,7 @@ public class ProgressCellRenderer extends JProgressBar implements TableCellRende
         if (value instanceof Float) {
             progress = Math.round(((Float) value));
         } else if (value instanceof Integer) {
-            progress = (int) value;
+            progress = (Integer) value;
         }
         setValue(progress);
         return this;
