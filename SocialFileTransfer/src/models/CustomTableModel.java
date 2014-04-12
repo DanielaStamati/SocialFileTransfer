@@ -75,7 +75,7 @@ public class CustomTableModel extends AbstractTableModel{
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		File file = dataStore.getFileAt(rowIndex);
         if (columnIndex == 3 && (aValue instanceof Float)) {
-        	file.progress = (float) aValue;
+        	file.progress = (Float) aValue;
         }
     }
     

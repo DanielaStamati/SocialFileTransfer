@@ -27,7 +27,7 @@ public class FileUpdater extends SwingWorker<File, File> {
 			public void propertyChange(PropertyChangeEvent evt) {
 				// TODO Auto-generated method stub
                 if (evt.getPropertyName().equals("progress")) {
-                	FileUpdater.this.model.updateStatus(FileUpdater.this.currentFile, (int) evt.getNewValue());
+                	FileUpdater.this.model.updateStatus(FileUpdater.this.currentFile, (Integer) evt.getNewValue());
                 }
 			}
 		});
