@@ -1,4 +1,4 @@
-package Utils;
+package utils;
 
 import javax.swing.DefaultListModel;
 
@@ -7,7 +7,11 @@ import models.File;
 
 public class FileListUtils {
 	
-	DefaultListModel<File> fileListModel = DataStore.getInstance().getFileListModel();
+	DefaultListModel<File> fileListModel;
+	
+	public FileListUtils(DefaultListModel<File> fileListModel) {
+		this.fileListModel = fileListModel;
+	}
     
     public void addToFileList(File file){
     	
@@ -54,6 +58,10 @@ public class FileListUtils {
     
     public File getFileAt(Integer index){
     	return fileListModel.get(index);
+    }
+    
+    public void removeAllFiles () {
+        fileListModel.removeAllElements();
     }
 
 }

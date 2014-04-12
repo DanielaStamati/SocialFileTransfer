@@ -2,6 +2,7 @@ package models;
 
 import javax.swing.table.AbstractTableModel;
 
+import utils.FileListUtils;
 import main.DataStore;
 
 
@@ -9,10 +10,12 @@ import main.DataStore;
 public class CustomTableModel extends AbstractTableModel{
 	
 	DataStore dataStore;
+	FileListUtils historyFileListUtils;
 	String[] columnNames = {"Source", "Destination", "File name", "Progres" ,"Status"};
 	
 	public CustomTableModel(){
 		dataStore = DataStore.getInstance();
+		historyFileListUtils = new FileListUtils(dataStore.getHistoryFileListModel());
 	}
 
 	@Override
@@ -22,7 +25,7 @@ public class CustomTableModel extends AbstractTableModel{
 
 	@Override
 	public int getRowCount() {
-		return dataStore.getFileListModel().getSize();
+		return dataStore.getHistoryFileListModel().getSize();
 	}
 	
     public String getColumnName(int column) {
@@ -50,7 +53,7 @@ public class CustomTableModel extends AbstractTableModel{
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		
-		File file = dataStore.getFileAt(rowIndex);
+		File file = historyFileListUtils.getFileAt(rowIndex);
 		
 		switch (columnIndex) {
 	        case 0:
@@ -73,7 +76,7 @@ public class CustomTableModel extends AbstractTableModel{
 	//it takes the data directly from the DataStore
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		File file = dataStore.getFileAt(rowIndex);
+		File file = historyFileListUtils.getFileAt(rowIndex);
         if (columnIndex == 3 && (aValue instanceof Float)) {
         	file.progress = (Float) aValue;
         }
@@ -82,7 +85,7 @@ public class CustomTableModel extends AbstractTableModel{
     public void updateStatus(File file, float progress) {       
     	//TODO: make this shit work properly 
        if (file != null) {
-            int row = dataStore.getFileListModel().indexOf(file);
+            int row = dataStore.getHistoryFileListModel().indexOf(file);
             setValueAt((float)progress, row, 3);
             fireTableCellUpdated(row, 3); 
             

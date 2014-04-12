@@ -1,11 +1,9 @@
 package main;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
-import javax.swing.text.TabExpander;
 
+import utils.FileListUtils;
+import utils.UserListUtils;
 import workers.FileUpdater;
 
 
@@ -31,12 +29,13 @@ public class Main extends JFrame{
     private JSplitPane splitPanelUpDown;
     private JSplitPane splitPanelRightLeft;
 
-    private static JList usersList;
-    private JList usersFilesList = new JList();
-
-    private static int xUser;
-    private static int yUser;
-
+    private static JList<User> usersList;
+    private JList<File> usersFilesList = new JList<File>();
+    
+    
+    FileListUtils historyFileListUtils;
+    UserListUtils userListUtils;
+    
 
     CustomTableModel tableModel;
 
@@ -54,7 +53,9 @@ public class Main extends JFrame{
     public void createTable () {
         tableModel = new CustomTableModel();
         table = new JTable(tableModel);
-        addFiles();
+        addHistoryFiles();
+        
+        addFiles(userListUtils.getUserAt(1));
     }
 
 
@@ -66,6 +67,9 @@ public class Main extends JFrame{
 
         dataStore.init();
         dataStore = DataStore.getInstance();
+        
+        historyFileListUtils = new FileListUtils(dataStore.getHistoryFileListModel());
+        userListUtils = new UserListUtils();
 
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BorderLayout());
@@ -93,34 +97,55 @@ public class Main extends JFrame{
     }
 
     //TODO: delete
-    private void addFiles(){
-
-        File f = new File("file1", dataStore.getUserAt(0), dataStore.getUserAt(1));
-        dataStore.addToFileList(f);
+    private void addHistoryFiles(){
+        File f = new File("file1", userListUtils.getUserAt(0), userListUtils.getUserAt(1));
+        historyFileListUtils.addToFileList(f);
         FileUpdater worker = new FileUpdater(tableModel,f);
         worker.execute();
 
-        File f1 = new File("file2", dataStore.getUserAt(1), dataStore.getUserAt(0));
-        dataStore.addToFileList(f1);
+        File f1 = new File("file2", userListUtils.getUserAt(1), userListUtils.getUserAt(0));
+        historyFileListUtils.addToFileList(f1);
         FileUpdater worker1 = new FileUpdater(tableModel,f1);
         worker1.execute();
 
-        File f2 = new File("file3", dataStore.getUserAt(0), dataStore.getUserAt(2));
-        dataStore.addToFileList(f2);
+        File f2 = new File("file3", userListUtils.getUserAt(0), userListUtils.getUserAt(2));  
+        historyFileListUtils.addToFileList(f2);
         FileUpdater worker2 = new FileUpdater(tableModel,f2);
         worker2.execute();
-
     }
+    
+    //TODO: delete
+    private void addFiles(User user){
+    	
+    	FileListUtils fileListUtils = new FileListUtils(user.getHistoryFileListModel());
+    	
+        File f = new File("file1", userListUtils.getUserAt(0), userListUtils.getUserAt(1));
+        fileListUtils.addToFileList(f);
 
+        File f1 = new File("file2", userListUtils.getUserAt(1), userListUtils.getUserAt(0));
+        fileListUtils.addToFileList(f1);
 
+        File f2 = new File("file3", userListUtils.getUserAt(0), userListUtils.getUserAt(2));  
+        fileListUtils.addToFileList(f2);
+    }
+    
+
+    private void refreshUpPanel (User user) {
+        usersFilesList = new JList(user.getHistoryFileListModel());   
+        upPanel.removeAll();
+        upPanel.add(usersFilesList);
+        upPanel.revalidate();
+        upPanel.repaint();
+       // splitPanelUpDown.setTopComponent(upPanel);
+    }
+    
     private void createUpPanel () {
-
         upPanel = new JPanel();
         upPanel.setLayout(new BorderLayout());
-
-        usersFilesList = new JList(dataStore.getFileListModel());
+        upPanel.setPreferredSize(new Dimension(20, 20));
+        upPanel.setMinimumSize(new Dimension(60, 100));
+        usersFilesList = new JList(new DefaultListModel<File>());
         upPanel.add(usersFilesList);
-
     }
 
     private void createDownPanel (){
@@ -176,9 +201,9 @@ public class Main extends JFrame{
 
     private void addUsers(){
         currentUser = new User("User1");
-        dataStore.addToUserList(currentUser);
-        dataStore.addToUserList(new User("User2"));
-        dataStore.addToUserList(new User("User3"));
+        userListUtils.addToUserList(currentUser);
+        userListUtils.addToUserList(new User("User2"));
+        userListUtils.addToUserList(new User("User3"));
     }
 
 
@@ -190,11 +215,9 @@ public class Main extends JFrame{
     class MouseSelectUsers extends MouseAdapter {
 
         public void mouseClicked(MouseEvent event) {
-
             int index = usersList.locationToIndex(event.getPoint());
-            System.out.println(usersList.getSelectedValue());
-            //dataStore.removeAllFiles();
-
+            System.out.println(usersList.getSelectedValue());            
+            refreshUpPanel(usersList.getSelectedValue());
         }
 
     }
