@@ -166,7 +166,7 @@ public class Main extends JFrame{
     }
     
     private void addUsers(){
-    	currentUser = new User("User1");
+    	currentUser = new User("User1"); 
     	dataStore.addToUserList(currentUser);
     	dataStore.addToUserList(new User("User2"));
     	dataStore.addToUserList(new User("User3"));

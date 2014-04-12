@@ -1,7 +1,5 @@
 package workers;
 
-
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.SwingWorker;
@@ -43,8 +41,6 @@ public class FileUpdater extends SwingWorker<File, File> {
 		}
 		
 		return currentFile;
-		
-		
 		
 	}
 
