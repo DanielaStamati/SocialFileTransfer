@@ -1,0 +1,13 @@
+127.0.0.1 30000
+duffy 127.0.0.1 30000 3
+dfile1
+dfile2
+dfile3
+pluto 127.0.0.1 30000 3
+pfile1
+pfile2
+pfile3
+mickey 127.0.0.1 30000 3
+mfile1 
+mfile2
+mfile3
