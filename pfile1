@@ -14014,17 +14014,3 @@ public class Server extends SwingWorker<Object, Object >{
 	}
 
 }
- void read(SelectionKey key) throws IOException {
-
-		System.out.print("READ SERVER: ");
-        SocketChannel socketChannel = (SocketChannel)key.channel();
-        ByteBuffer buff = ByteBuffer.allocateDirect(BUF_SIZE);
-
-        while(socketChannel.read(buff) > 0){
-
-        }
-
-        socketChannel.register(key.selector(), SelectionKey.OP_WRITE, buff);
-
-
-    }

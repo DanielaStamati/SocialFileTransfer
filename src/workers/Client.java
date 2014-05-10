@@ -34,7 +34,7 @@ public class Client extends SwingWorker<Void, Void>{
         this.PORT = PORT;
         this.currentFile = currentFile;
         this.model = model;
-
+        
         addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -54,7 +54,9 @@ public class Client extends SwingWorker<Void, Void>{
         SocketChannel socketChannel = (SocketChannel)key.channel();
         socketChannel.configureBlocking(false);
         logger.info("Client: Trying to connect to server ...");
-
+        
+        System.out.println("muie");
+        
         if (socketChannel.isConnectionPending()){
 
             socketChannel.finishConnect();
@@ -137,7 +139,7 @@ public class Client extends SwingWorker<Void, Void>{
 
         Selector selector = null;
         SocketChannel socketChannel	= null;
-
+   
         try {
 
             selector = Selector.open();

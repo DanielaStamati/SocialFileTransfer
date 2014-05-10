@@ -1,21 +1,39 @@
 package main;
 
-import models.*;
-import utils.FileListUtils;
-import utils.UserListUtils;
-import workers.Client;
-import workers.FileUpdater;
-import workers.Server;
-
-import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
+
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
+
+import models.CustomTableModel;
+import models.FileModel;
+import models.ProgressCellRenderer;
+import models.User;
+import models.UsersList;
+import utils.FileListUtils;
+import utils.UserListUtils;
+import webservice.GetUsers;
+import webservice.RegisterNewUser;
+import workers.Client;
+import workers.FileUpdater;
+import workers.Server;
 
 
 public class Main extends JFrame{
@@ -50,8 +68,6 @@ public class Main extends JFrame{
 
         tableModel = new CustomTableModel();
         table = new JTable(tableModel);
-
-       // addHistoryFiles();
 
     }
 
@@ -95,25 +111,6 @@ public class Main extends JFrame{
 
     }
 
-    //TODO: delete -- keeping this only for example of how to add files ... or update progress bar
-    private void addHistoryFiles(){
-        FileModel f = new FileModel("file1", userListUtils.getUserAt(0), userListUtils.getUserAt(1));
-        historyFileListUtils.addToFileList(f);
-        FileUpdater worker = new FileUpdater(tableModel,f);
-        worker.execute();
-
-        FileModel f1 = new FileModel("file2", userListUtils.getUserAt(1), userListUtils.getUserAt(0));
-        historyFileListUtils.addToFileList(f1);
-        FileUpdater worker1 = new FileUpdater(tableModel,f1);
-        worker1.execute();
-
-        FileModel f2 = new FileModel("file3", userListUtils.getUserAt(0), userListUtils.getUserAt(2));
-        historyFileListUtils.addToFileList(f2);
-        FileUpdater worker2 = new FileUpdater(tableModel,f2);
-        worker2.execute();
-
-    }
-
 
     private void refreshUpPanel (final User user) {
 
@@ -127,19 +124,15 @@ public class Main extends JFrame{
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    System.out.println(usersFilesList.getSelectedValue());
+                  
                     Client c = new Client(user.getIP(), user.getPORT(), usersFilesList.getSelectedValue(), tableModel);
 
                     historyFileListUtils.addToFileList(usersFilesList.getSelectedValue());
-
-                    // asta trebuie mutate acolo unde se adauga -> ma mai uit unde se face asta ??
                     tableModel.fireTableRowsInserted(table.getRowCount() + 1, table.getColumnCount() + 1);
 
                     c.execute();
                     if (c.isDone())
                         c.cancel(true);
-
-
                 }
             }
         });
@@ -210,13 +203,6 @@ public class Main extends JFrame{
         this.setVisible(true);
     }
 
-    /**
-     * Daca crapa uitate aici s-ar putea sa nu existe fisierele
-     * decomenteaza prima parte si comenteaza ce e scris
-     *
-     * asta trebuie sa se cheme init
-     *
-     */
     private void loadInitialData(String username){
 
         File file = new File(username + ".txt");
@@ -233,27 +219,22 @@ public class Main extends JFrame{
         Scanner sc = new Scanner(in);
         String IP = sc.next();
         int PORT = sc.nextInt();
-        this.currentUser = new User("deirdre", IP, PORT);
-
+        ArrayList<String> currentFiles = new ArrayList<String> ();
+        this.currentUser = new User(username, IP, PORT, currentFiles);
+        
         Server s = new Server(IP, PORT);
         s.execute();
 
-        while (sc.hasNextLine()){
-
-            User usr = new User(sc.next(), sc.next(), sc.nextInt());
-            userListUtils.addToUserList(usr);
-            int nrOfFiles = sc.nextInt();
-
-            for (int i = 0; i < nrOfFiles; i++) {
-
-            // Say whaaa ????
-                FileModel f = new FileModel(sc.next(), usr, currentUser);
-                FileListUtils fileList = new FileListUtils(usr.getHistoryFileListModel());
-                fileList.addToFileList(f);
-
-            }
+        UsersList users = GetUsers.getRegisteredUsers();
+        for (User usr : users.users) {
+        	System.out.println(usr.getIP() + usr.getName());
+        	userListUtils.addToUserList(usr);
+        	for (String files : usr.getFilesNames()) {
+        		FileModel f = new FileModel (files, usr, currentUser);
+        		FileListUtils fl = new FileListUtils(usr.getHistoryFileListModel());
+        		fl.addToFileList(f);
+        	}
         }
-
     }
 
     public static void main (String[] args) {
@@ -262,7 +243,10 @@ public class Main extends JFrame{
             System.out.println("Please specify the user that starts the app");
             return;
         }
+        
         new Main(args[0]);
+        RegisterNewUser.register(new User("mimi", "127.0.0.0", 30000, new ArrayList<String> ()));
+        
     }
 
 }

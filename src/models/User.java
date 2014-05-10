@@ -1,22 +1,32 @@
 package models;
 
+import java.util.ArrayList;
+
 import javax.swing.DefaultListModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class User {
-    private String name;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class User  {
+
+	private String name;
     private static int PORT;
     private static String IP;
 
     private DefaultListModel<FileModel> fileListModel;
+    private ArrayList<String> filesNames = new ArrayList<String>();
     
     
     public User(){}
     
-    public User (String name, String IP, int PORT){
+    public User (@JsonProperty("name") String name, @JsonProperty("ip") String IP, @JsonProperty("port") int PORT, 
+    		@JsonProperty("files") ArrayList<String> filesNames){
+    	
     	this.name = name;
         this.IP = IP;
         this.PORT = PORT;
+        this.filesNames = filesNames;
 
     }
     
@@ -46,5 +56,9 @@ public class User {
 
     public static String getIP() {
         return IP;
+    }
+    
+    public ArrayList<String> getFilesNames () {
+    	return this.filesNames;
     }
 }
