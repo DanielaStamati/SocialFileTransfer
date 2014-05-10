@@ -4,17 +4,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.SwingWorker;
 
-import sun.java2d.loops.CustomComponent;
+import models.FileModel;
 import models.CustomTableModel;
-import models.File;
 
-public class FileUpdater extends SwingWorker<File, File> {
+public class FileUpdater extends SwingWorker<FileModel, FileModel> {
 	
-	private File currentFile;
+	private FileModel currentFile;
 	private CustomTableModel model;
 	
 	
-	public FileUpdater (CustomTableModel model, File currentFile){
+	public FileUpdater (CustomTableModel model, FileModel currentFile){
 		
 		this.model = model;
 		this.currentFile = currentFile;
@@ -32,7 +31,7 @@ public class FileUpdater extends SwingWorker<File, File> {
 	}
 
 	@Override
-	protected File doInBackground() throws Exception {
+	protected FileModel doInBackground() throws Exception {
 		
 		for(int i=1;i<=100;i++){
 			Thread.sleep(100);

@@ -1,29 +1,29 @@
 package utils;
 
-import javax.swing.DefaultListModel;
+import models.FileModel;
 
-import main.DataStore;
-import models.File;
+import javax.swing.*;
+import java.util.Iterator;
 
-public class FileListUtils {
+public class FileListUtils implements Iterable<FileModel> {
 	
-	DefaultListModel<File> fileListModel;
+	DefaultListModel<FileModel> fileListModel;
 	
-	public FileListUtils(DefaultListModel<File> fileListModel) {
+	public FileListUtils(DefaultListModel<FileModel> fileListModel) {
 		this.fileListModel = fileListModel;
 	}
     
-    public void addToFileList(File file){
+    public void addToFileList(FileModel file){
     	
     	if(fileListModel == null){
-    		fileListModel = new DefaultListModel<File>();
+    		fileListModel = new DefaultListModel<FileModel>();
     	}
     	
     	fileListModel.addElement(file);
     }
     
     //removes if it exists
-    public boolean removeFromFileList(File file){
+    public boolean removeFromFileList(FileModel file){
     	
     	if(fileListModel == null){
     		return false;
@@ -56,12 +56,36 @@ public class FileListUtils {
     	
     }
     
-    public File getFileAt(Integer index){
+    public FileModel getFileAt(Integer index){
     	return fileListModel.get(index);
     }
     
     public void removeAllFiles () {
         fileListModel.removeAllElements();
+    }
+
+    @Override
+    public Iterator<FileModel> iterator() {
+        Iterator<FileModel> it = new Iterator<FileModel>() {
+
+            private int currentIndex = 0;
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex < fileListModel.size() && fileListModel.get(currentIndex) != null;
+            }
+
+            @Override
+            public FileModel next() {
+                return fileListModel.get(currentIndex++);
+            }
+
+            @Override
+            public void remove() {
+
+            }
+        };
+        return it;
     }
 
 }

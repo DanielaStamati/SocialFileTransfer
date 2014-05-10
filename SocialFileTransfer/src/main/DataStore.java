@@ -1,18 +1,14 @@
-package main;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.DefaultListModel;
-
-import models.File;
+package main;import models.FileModel;
 import models.User;
+
+import javax.swing.*;
 
 
 public class DataStore {
 
     private static DataStore _instance;
 
-    private DefaultListModel<File> fileHistoryListModel;
+    private DefaultListModel<FileModel> fileHistoryListModel;
     private DefaultListModel<User> userListModel;
 
 
@@ -27,9 +23,9 @@ public class DataStore {
     }
 
 
-    public DefaultListModel<File> getHistoryFileListModel(){
+    public DefaultListModel<FileModel> getHistoryFileListModel(){
         if(fileHistoryListModel == null){
-            fileHistoryListModel = new DefaultListModel<File>();
+            fileHistoryListModel = new DefaultListModel<FileModel>();
         }
 
         return fileHistoryListModel;

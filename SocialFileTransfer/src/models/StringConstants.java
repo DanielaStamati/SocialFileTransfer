@@ -2,10 +2,11 @@ package models;
 
 public class StringConstants {
 	
-	static String sending = "Sending...";
-	static String receiving = "Receiving...";
-	static String received = "Receved";
-	static String sent = "File sent";
-	static String error_receiving = "Error receiving file";
-	static String error_sending = "Error sending file";
+	public static String sending = "Sending...";
+	public static String receiving = "Receiving...";
+	public static String received = "Receved";
+	public static String sent = "FileModel sent";
+	public static String error_receiving = "Error receiving file";
+	public static String error_sending = "Error sending file";
+    public static int BUF_SIZE = 1400;
 }

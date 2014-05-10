@@ -1,22 +1,39 @@
 package main;
-import javax.swing.*;
-import javax.swing.border.BevelBorder;
 
-import utils.FileListUtils;
-import utils.UserListUtils;
-import workers.FileUpdater;
-
-
-
-import models.CustomTableModel;
-import models.File;
-import models.ProgressCellRenderer;
-import models.User;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
 
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
+
+import models.CustomTableModel;
+import models.FileModel;
+import models.ProgressCellRenderer;
+import models.User;
+import models.UsersList;
+import utils.FileListUtils;
+import utils.UserListUtils;
+import webservice.GetUsers;
+import webservice.RegisterNewUser;
+import workers.Client;
+import workers.FileUpdater;
+import workers.Server;
 
 
 public class Main extends JFrame{
@@ -24,47 +41,45 @@ public class Main extends JFrame{
     private JPanel upPanel;
     private JPanel downPanel;
     private JPanel rightPanel;
-    JPanel statusPanel;
+    private JPanel statusPanel;
 
     private JSplitPane splitPanelUpDown;
     private JSplitPane splitPanelRightLeft;
 
     private static JList<User> usersList;
-    private JList<File> usersFilesList = new JList<File>();
+    private JList<FileModel> usersFilesList = new JList<FileModel>();
     
     
-    FileListUtils historyFileListUtils;
-    UserListUtils userListUtils;
-    
+    private FileListUtils historyFileListUtils;
+    private UserListUtils userListUtils;
 
-    CustomTableModel tableModel;
-
-    //TODO: set current user!
-    User currentUser;
+    private CustomTableModel tableModel;
+    static User currentUser;
 
     private DataStore dataStore;
-
-    JTable table;
+    private JTable table;
+    private String username;
 
     public void createLists () {
 
     }
 
     public void createTable () {
+
         tableModel = new CustomTableModel();
         table = new JTable(tableModel);
-        addHistoryFiles();
-        
-        addFiles(userListUtils.getUserAt(1));
+
     }
 
 
-    public Main () {
-        super("Social File Transfer");
+    public Main (String username) {
+
+        super("Social FileModel Transfer");
 
         setSize(600, 400);
         setResizable(true);
 
+        this.username = username;
         dataStore.init();
         dataStore = DataStore.getInstance();
         
@@ -96,47 +111,31 @@ public class Main extends JFrame{
 
     }
 
-    //TODO: delete
-    private void addHistoryFiles(){
-        File f = new File("file1", userListUtils.getUserAt(0), userListUtils.getUserAt(1));
-        historyFileListUtils.addToFileList(f);
-        FileUpdater worker = new FileUpdater(tableModel,f);
-        worker.execute();
 
-        File f1 = new File("file2", userListUtils.getUserAt(1), userListUtils.getUserAt(0));
-        historyFileListUtils.addToFileList(f1);
-        FileUpdater worker1 = new FileUpdater(tableModel,f1);
-        worker1.execute();
+    private void refreshUpPanel (final User user) {
 
-        File f2 = new File("file3", userListUtils.getUserAt(0), userListUtils.getUserAt(2));  
-        historyFileListUtils.addToFileList(f2);
-        FileUpdater worker2 = new FileUpdater(tableModel,f2);
-        worker2.execute();
-    }
-    
-    //TODO: delete
-    private void addFiles(User user){
-    	
-    	FileListUtils fileListUtils = new FileListUtils(user.getHistoryFileListModel());
-    	
-        File f = new File("file1", userListUtils.getUserAt(0), userListUtils.getUserAt(1));
-        fileListUtils.addToFileList(f);
-
-        File f1 = new File("file2", userListUtils.getUserAt(1), userListUtils.getUserAt(0));
-        fileListUtils.addToFileList(f1);
-
-        File f2 = new File("file3", userListUtils.getUserAt(0), userListUtils.getUserAt(2));  
-        fileListUtils.addToFileList(f2);
-    }
-    
-
-    private void refreshUpPanel (User user) {
         usersFilesList = new JList(user.getHistoryFileListModel());   
         upPanel.removeAll();
         upPanel.add(usersFilesList);
         upPanel.revalidate();
         upPanel.repaint();
-       // splitPanelUpDown.setTopComponent(upPanel);
+        usersFilesList.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                  
+                    Client c = new Client(user.getIP(), user.getPORT(), usersFilesList.getSelectedValue(), tableModel);
+
+                    historyFileListUtils.addToFileList(usersFilesList.getSelectedValue());
+                    tableModel.fireTableRowsInserted(table.getRowCount() + 1, table.getColumnCount() + 1);
+
+                    c.execute();
+                    if (c.isDone())
+                        c.cancel(true);
+                }
+            }
+        });
     }
     
     private void createUpPanel () {
@@ -144,7 +143,7 @@ public class Main extends JFrame{
         upPanel.setLayout(new BorderLayout());
         upPanel.setPreferredSize(new Dimension(20, 20));
         upPanel.setMinimumSize(new Dimension(60, 100));
-        usersFilesList = new JList(new DefaultListModel<File>());
+        usersFilesList = new JList(new DefaultListModel<FileModel>());
         upPanel.add(usersFilesList);
     }
 
@@ -169,9 +168,14 @@ public class Main extends JFrame{
 
         usersList = new JList(dataStore.getUserListModel());
 
-        //TODO: delete this:
-        addUsers();
-        usersList.addMouseListener(new MouseSelectUsers());
+        loadInitialData(username);
+
+        usersList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+               refreshUpPanel(usersList.getSelectedValue());
+            }
+        });
 
         rightPanel.add(usersList);
     }
@@ -199,28 +203,50 @@ public class Main extends JFrame{
         this.setVisible(true);
     }
 
-    private void addUsers(){
-        currentUser = new User("User1");
-        userListUtils.addToUserList(currentUser);
-        userListUtils.addToUserList(new User("User2"));
-        userListUtils.addToUserList(new User("User3"));
-    }
+    private void loadInitialData(String username){
 
+        File file = new File(username + ".txt");
+        FileInputStream in = null;
 
-    public static void main (String[] args) {
-        new Main();
-    }
+        try {
+            in = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
 
-
-    class MouseSelectUsers extends MouseAdapter {
-
-        public void mouseClicked(MouseEvent event) {
-            int index = usersList.locationToIndex(event.getPoint());
-            System.out.println(usersList.getSelectedValue());            
-            refreshUpPanel(usersList.getSelectedValue());
+            System.out.println("Vezi ca nu exista fisierul deirdre.txt de unde ia port ip lista de useri si fisiere... ");
+            e.printStackTrace();
         }
 
+        Scanner sc = new Scanner(in);
+        String IP = sc.next();
+        int PORT = sc.nextInt();
+        ArrayList<String> currentFiles = new ArrayList<String> ();
+        this.currentUser = new User(username, IP, PORT, currentFiles);
+        
+        Server s = new Server(IP, PORT);
+        s.execute();
+
+        UsersList users = GetUsers.getRegisteredUsers();
+        for (User usr : users.users) {
+        	System.out.println(usr.getIP() + usr.getName());
+        	userListUtils.addToUserList(usr);
+        	for (String files : usr.getFilesNames()) {
+        		FileModel f = new FileModel (files, usr, currentUser);
+        		FileListUtils fl = new FileListUtils(usr.getHistoryFileListModel());
+        		fl.addToFileList(f);
+        	}
+        }
     }
 
+    public static void main (String[] args) {
+
+        if (args.length < 1){
+            System.out.println("Please specify the user that starts the app");
+            return;
+        }
+        
+        new Main(args[0]);
+        RegisterNewUser.register(new User("mimi", "127.0.0.0", 30000, new ArrayList<String> ()));
+        
+    }
 
 }

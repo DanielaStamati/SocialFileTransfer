@@ -1,12 +1,12 @@
 package utils;
 
-import javax.swing.DefaultListModel;
-
 import main.DataStore;
-import models.File;
 import models.User;
 
-public class UserListUtils {
+import javax.swing.*;
+import java.util.Iterator;
+
+public class UserListUtils implements Iterable<User>{
 	
 	DefaultListModel<User> userListModel;
 	
@@ -46,7 +46,7 @@ public class UserListUtils {
             return false;
         }
 
-        if(userListModel.size()<=index+1){
+        if(userListModel.size() <= index + 1){
             userListModel.remove(index);
             return true;
         }else{
@@ -57,7 +57,7 @@ public class UserListUtils {
 
     public User getUserAt(Integer index){
 
-        if(index<userListModel.size()){
+        if(index < userListModel.size()){
             return userListModel.get(index);
         }
 
@@ -65,5 +65,27 @@ public class UserListUtils {
     }
 
 
+    @Override
+    public Iterator<User> iterator() {
+        Iterator<User> it = new Iterator<User>() {
 
+            private int currentIndex = 0;
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex < userListModel.size() && userListModel.get(currentIndex) != null;
+            }
+
+            @Override
+            public User next() {
+                return userListModel.get(currentIndex++);
+            }
+
+            @Override
+            public void remove() {
+
+            }
+        };
+        return it;
+    }
 }

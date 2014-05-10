@@ -1,9 +1,9 @@
 package models;
 
-import javax.swing.table.AbstractTableModel;
-
-import utils.FileListUtils;
 import main.DataStore;
+import utils.FileListUtils;
+
+import javax.swing.table.AbstractTableModel;
 
 
 
@@ -11,7 +11,7 @@ public class CustomTableModel extends AbstractTableModel{
 	
 	DataStore dataStore;
 	FileListUtils historyFileListUtils;
-	String[] columnNames = {"Source", "Destination", "File name", "Progres" ,"Status"};
+	String[] columnNames = {"Source", "Destination", "FileModel name", "Progres" ,"Status"};
 	
 	public CustomTableModel(){
 		dataStore = DataStore.getInstance();
@@ -38,7 +38,7 @@ public class CustomTableModel extends AbstractTableModel{
                 name = "Destination";
                 break;
             case 2:
-                name = "File name";
+                name = "FileModel name";
                 break;
             case 3:
                 name = "Progress";
@@ -53,19 +53,19 @@ public class CustomTableModel extends AbstractTableModel{
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		
-		File file = historyFileListUtils.getFileAt(rowIndex);
+		FileModel file = historyFileListUtils.getFileAt(rowIndex);
 		
 		switch (columnIndex) {
 	        case 0:
-	            return file.from.toString();
+	            return file.getFrom().toString();
 	        case 1:
-	        	return file.to.toString();
+	        	return file.getTo().toString();
 	        case 2:
-	        	return file.name;
+	        	return file.getName();
 	        case 3:
-	        	return file.progress;
+	        	return file.getProgress();
 	        case 4:
-	        	return file.status;
+	        	return file.getStatus();
 	    }
 			
 		
@@ -76,25 +76,26 @@ public class CustomTableModel extends AbstractTableModel{
 	//it takes the data directly from the DataStore
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		File file = historyFileListUtils.getFileAt(rowIndex);
+		FileModel file = historyFileListUtils.getFileAt(rowIndex);
         if (columnIndex == 3 && (aValue instanceof Float)) {
-        	file.progress = (Float) aValue;
+        	file.setProgress((Float) aValue);
         }
+        fireTableRowsInserted(rowIndex, columnIndex);
     }
     
-    public void updateStatus(File file, float progress) {       
+    public void updateStatus(FileModel file, float progress) {
     	//TODO: make this shit work properly 
        if (file != null) {
             int row = dataStore.getHistoryFileListModel().indexOf(file);
-            setValueAt((float)progress, row, 3);
+            setValueAt(progress, row, 3);
             fireTableCellUpdated(row, 3); 
             
-            if(progress==100){
+            if(progress == 100){
             	
-            	if(file.status.equalsIgnoreCase(StringConstants.sending)){
-            		file.status = StringConstants.sent;
-            	}else if(file.status.equalsIgnoreCase(StringConstants.receiving)){
-            		file.status = StringConstants.received;
+            	if(file.getStatus().equalsIgnoreCase(StringConstants.sending)){
+            		file.setStatus(StringConstants.sent);
+            	}else if(file.getStatus().equalsIgnoreCase(StringConstants.receiving)){
+            		file.setStatus(StringConstants.received);
             	}
             	
             	fireTableCellUpdated(row, 4); 
