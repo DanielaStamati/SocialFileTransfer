@@ -1,0 +1,22 @@
+======================================
+Tema 3 IDP
+
+	Chelcioiu Ionut Daniel 341C1
+	Stamati Daniela	341C5
+======================================
+
+
+Pentru partea de server am folosit apache tomcat 7.0. Transferul de date dintre aplicatie si server se realizeaza prin JSON-uri. Pentru fiecare interactiune dintre server si aplicatie s-a creat un servlet.
+
+Pentru rularea aplicatiei este nevoie de:
+	- jackson-annotations-2.3.0.jar
+	- jackson-core-2.3.0.jar
+	- jackson-databind-2.3.0.jar
+	- log4j-1.2.17.jar
+Parametrii de rulare ai aplicatiei sunt: username, IP si port. De exemplu: deirdre 127.0.0.1 30000.
+
+Sincronizarea aplicatiei cu server-ul se face o data la 10 secunde.
+
+Fiecare user are un folder cu denumirea <username>, din care se trimit si in care se primesc fisierele.
+
+Pentru testare am rulat mai multe aplicatii cu diferite setari in run configurations.

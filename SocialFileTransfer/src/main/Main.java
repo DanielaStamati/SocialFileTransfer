@@ -32,19 +32,20 @@ import webservice.GetUsers;
 import webservice.RegisterNewUser;
 import workers.Client;
 import workers.Server;
+import workers.UserListUpdater;
 
 
 public class Main extends JFrame{
 
     private JPanel upPanel;
     private JPanel downPanel;
-    private JPanel rightPanel;
+    public JPanel rightPanel;
     private JPanel statusPanel;
 
     private JSplitPane splitPanelUpDown;
     private JSplitPane splitPanelRightLeft;
 
-    private static JList<User> usersList;
+    public static JList<User> usersList;
     private JList<FileModel> usersFilesList = new JList<FileModel>();
     
     
@@ -110,7 +111,8 @@ public class Main extends JFrame{
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
                CloseApp.LeaveAplication(currentUser.getName());
-               System.out.println("cevaa");
+               System.out.println("User exited");
+               System.exit(EXIT_ON_CLOSE);
             }
         });
         
@@ -131,7 +133,7 @@ public class Main extends JFrame{
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                   
-                    Client c = new Client(user.getIP(), user.getPORT(), usersFilesList.getSelectedValue(), tableModel);
+                    Client c = new Client(user.getIP(), user.getPORT(), usersFilesList.getSelectedValue(), tableModel, currentUser.getName());
 
                     historyFileListUtils.addToFileList(usersFilesList.getSelectedValue());
                     tableModel.fireTableRowsInserted(table.getRowCount() + 1, table.getColumnCount() + 1);
@@ -200,7 +202,7 @@ public class Main extends JFrame{
         statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
         this.add(statusPanel, BorderLayout.SOUTH);
 
-        updateStatusBarLabel("status bar created");
+        updateStatusBarLabel("Current user: " + currentUser.getName());
 
         statusPanel.setPreferredSize(new Dimension(this.getWidth(), 16));
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
@@ -210,10 +212,8 @@ public class Main extends JFrame{
     }
 
     private void loadInitialData(){
-
-
              
-        Server s = new Server(currentUser.getIP(), currentUser.getPORT());
+        Server s = new Server(currentUser.getIP(), currentUser.getPORT(), currentUser.getName());
         s.execute();
 
         UsersList users = GetUsers.getRegisteredUsers();
@@ -244,7 +244,12 @@ public class Main extends JFrame{
         currentUser = new User(args[0], args[1], Integer.parseInt(args[2]), files);
         RegisterNewUser.register(currentUser);
         
-        new Main();
+        
+        
+        Main main = new Main();
+        
+        UserListUpdater userListUpdater = new UserListUpdater(main.rightPanel, currentUser, main.usersList);
+        userListUpdater.execute();
      
 		
         

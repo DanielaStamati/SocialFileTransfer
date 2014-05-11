@@ -3,9 +3,11 @@ package workers;
 import models.CustomTableModel;
 import models.FileModel;
 import models.StringConstants;
+
 import org.apache.log4j.Logger;
 
 import javax.swing.*;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -23,18 +25,20 @@ public class Client extends SwingWorker<Void, Void>{
 
     private static String IP;
     private static int PORT;
+    static String destination;
     private FileModel currentFile;
     private CustomTableModel model;
     static final Logger logger = Logger.getLogger(Client.class);
 
 
-    public Client (String IP, int PORT, FileModel currentFile, CustomTableModel model) {
+    public Client (String IP, int PORT, FileModel currentFile, CustomTableModel model, String destination) {
 
         this.IP = IP;
         this.PORT = PORT;
         this.currentFile = currentFile;
         this.model = model;
-        
+        this.destination = destination;
+
         addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
@@ -54,7 +58,7 @@ public class Client extends SwingWorker<Void, Void>{
         SocketChannel socketChannel = (SocketChannel)key.channel();
         socketChannel.configureBlocking(false);
         logger.info("Client: Trying to connect to server ...");
-       
+
         if (socketChannel.isConnectionPending()){
 
             socketChannel.finishConnect();
@@ -73,22 +77,12 @@ public class Client extends SwingWorker<Void, Void>{
         MappedByteBuffer buf = null;
 
         SocketChannel socketChannel	= (SocketChannel)key.channel();
-        RandomAccessFile fromFile = new RandomAccessFile(currentFile.getName(), "rw");
+        RandomAccessFile fromFile = new RandomAccessFile(destination + "/" + currentFile.getName() + "X", "rw");
         FileChannel fc = fromFile.getChannel();
         long bytesReaded;
         int progress = 0;
         int count = 0;
         long fileSize = 1;
-
-
-//        Aici incerc sa primesc primul pachet care reprezinta lungimea fisierului da nu se poate ?? ->era
-//          frumos pt progress bar da ....
-//        buf.clear();
-//        while (socketChannel.read(buf) < 0){
-//        }
-//
-//        buf.flip();
-//        fileSize = buf.getLong();
 
         logger.info("Client: Started getting data ...");
 
@@ -96,6 +90,7 @@ public class Client extends SwingWorker<Void, Void>{
         while ((bytesReaded = socketChannel.read(buf)) > 0){
 
             count += bytesReaded;
+            
             buf.flip();
             buf = fc.map(FileChannel.MapMode.READ_WRITE, count, bytesReaded);
             if (progress > 100)
@@ -114,7 +109,6 @@ public class Client extends SwingWorker<Void, Void>{
         key.cancel();
         logger.info("Client: Finished getting data ...");
         System.out.println("done");
-
 
     }
 
@@ -136,7 +130,7 @@ public class Client extends SwingWorker<Void, Void>{
 
         Selector selector = null;
         SocketChannel socketChannel	= null;
-   
+
         try {
 
             selector = Selector.open();
@@ -173,6 +167,7 @@ public class Client extends SwingWorker<Void, Void>{
 
         } finally {
             // cleanup
+
             if (selector != null)
                 try {
                     selector.close();

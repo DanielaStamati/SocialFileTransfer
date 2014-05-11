@@ -20,7 +20,6 @@ public class UserRegistrer extends HttpServlet {
 	
     public UserRegistrer() {
         super();
-        
     }
 
 	

@@ -63,6 +63,10 @@ public class UserListUtils implements Iterable<User>{
 
         return null;
     }
+    
+    public void removeAllUsers(){
+    	userListModel.removeAllElements();
+    }
 
 
     @Override

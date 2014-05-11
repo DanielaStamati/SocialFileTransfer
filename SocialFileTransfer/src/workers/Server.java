@@ -21,12 +21,13 @@ public class Server extends SwingWorker<Object, Object >{
 	public static String IP	;	// server IP
 	public static int PORT;		// server port
     static final Logger logger = Logger.getLogger(Server.class);
+    public static String name;
 
-
-    public Server(String IP, int PORT) {
+    public Server(String IP, int PORT, String name) {
 
         this.IP = IP;
         this.PORT = PORT;
+        this.name = name;
         logger.info("Server started: IP: " + IP + " PORT: " + PORT);
     }
 	
@@ -69,7 +70,7 @@ public class Server extends SwingWorker<Object, Object >{
 
         SocketChannel socketChannel = (SocketChannel)key.channel();
         ByteBuffer buf = (ByteBuffer)key.attachment();
-        Writer wr = new Writer(socketChannel, buf);
+        Writer wr = new Writer(socketChannel, buf, name);
         wr.run();
 
 	}

@@ -1,4 +1,6 @@
 package workers;
+import main.Main;
+
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -16,11 +18,13 @@ public class Writer implements Runnable{
 
     SocketChannel socketChannel;
     ByteBuffer buf;
+    String name;
     static final Logger logger = Logger.getLogger(Server.class);
 
-    public Writer(SocketChannel socketChannel, ByteBuffer buf) {
+    public Writer(SocketChannel socketChannel, ByteBuffer buf, String name) {
         this.socketChannel = socketChannel;
         this.buf = buf;
+        this.name = name;
     }
 
     @Override
@@ -43,7 +47,7 @@ public class Writer implements Runnable{
         int count = 0;
 
         try {
-            fromFile = new RandomAccessFile(filename, "rw");
+            fromFile = new RandomAccessFile(name + "/" + filename, "rw");
             FileChannel fc = fromFile.getChannel();
 
 //              Daca se trimite primul pachet cu lungimea fisierului din nush ce motive mistice se pierde
